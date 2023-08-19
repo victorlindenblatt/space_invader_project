@@ -168,11 +168,9 @@ while running:
     bossX[0] += bossX_change
 
     if bossX[0] > 600:
-        pygame.transform.flip(boss_img[0], False, False)
         bossX_change *= -1
         bossX[0] = 600
     elif bossX[0] < 0:
-        pygame.transform.flip(boss_img[0], True, False)
         bossX_change *= -1
         bossX[0] = 0
 
