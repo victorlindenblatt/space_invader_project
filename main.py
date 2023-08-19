@@ -13,12 +13,12 @@ CLOCK = pygame.time.Clock()
 SCREEN = pygame.display.set_mode((800, 600))
 
 # BACKGROUND
-BACKGROUND = pygame.image.load(os.path.join("assets", "background.png"))
+BACKGROUND = pygame.image.load(os.path.join("space_invader_project/assets", "background.png"))
 
 
 # Title and Icon
 pygame.display.set_caption("Space Invader")
-ICON = pygame.image.load(os.path.join("assets", "ufo.png"))
+ICON = pygame.image.load(os.path.join("space_invader_project/assets", "ufo.png"))
 pygame.display.set_icon(ICON)
 
 # score
@@ -43,7 +43,7 @@ def game_over_text():
 
 
 # Player
-player_img = pygame.image.load(os.path.join("assets", "spaceship.png"))
+player_img = pygame.image.load(os.path.join("space_invader_project/assets", "spaceship.png"))
 playerX = 370
 playerY = 480
 change_playerX = 0
@@ -62,20 +62,34 @@ alienY_change = []
 alien_down = []
 num_aliens = 6
 for i in range(num_aliens):
-    alien_img.append(pygame.image.load("assets\\alien.png"))
+    alien_img.append(pygame.image.load("space_invader_project/assets\\alien.png"))
     alienX.append(randint(0, 735))
     alienY.append(randint(50, 150))
     alienX_change.append(1)
     alienY_change.append(40)
     alien_down.append(False)
 
-
 def alien(x, y):
     SCREEN.blit(alien_img[i], (x, y))
 
+# Boss
+boss_img = []
+bossX = []
+bossY = []
+bossX_change = []
+bossY_change = []
+
+boss_img.append(pygame.image.load("space_invader_project/assets\\boss.png"))
+bossX.append(300)
+bossY.append(30)
+
+def boss(x, y):
+    SCREEN.blit(boss_img[0], (x, y))
+
+
 
 # Bullet
-bullet_img = pygame.image.load("assets\\bullet.png")
+bullet_img = pygame.image.load("space_invader_project/assets\\bullet.png")
 bulletX = 0
 bulletY = 480
 bulletX_change = 0
@@ -143,8 +157,12 @@ while running:
             alienX[i] = randint(0, 735)
             alienY[i] = randint(50, 150)
             score_value += 1
+        if score_value <= 1:
+            alien(alienX[i], alienY[i])
 
-        alien(alienX[i], alienY[i])
+    # Spawning Boss
+    if score_value > 1:
+        boss(bossX[0], bossY[0])
 
     # Player
     if event.type == pygame.KEYDOWN:
