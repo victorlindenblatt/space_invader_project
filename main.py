@@ -1,6 +1,7 @@
 import pygame
 import math
 import os
+import time
 from random import randint
 
 # Initialize the pygame
@@ -76,7 +77,7 @@ def alien(x, y):
 boss_img = []
 bossX = []
 bossY = []
-bossX_change = []
+bossX_change = 1.5
 bossY_change = []
 
 boss_img.append(pygame.image.load("space_invader_project/assets\\boss.png"))
@@ -93,7 +94,7 @@ bullet_img = pygame.image.load("space_invader_project/assets\\bullet.png")
 bulletX = 0
 bulletY = 480
 bulletX_change = 0
-bulletY_change = 5
+bulletY_change = 8.5
 bullet_state = "ready"
 
 
@@ -157,12 +158,23 @@ while running:
             alienX[i] = randint(0, 735)
             alienY[i] = randint(50, 150)
             score_value += 1
-        if score_value <= 1:
-            alien(alienX[i], alienY[i])
+        alien(alienX[i], alienY[i])
 
     # Spawning Boss
     if score_value > 1:
+        num_aliens = 0
         boss(bossX[0], bossY[0])
+
+    bossX[0] += bossX_change
+
+    if bossX[0] > 600:
+        pygame.transform.flip(boss_img[0], False, False)
+        bossX_change *= -1
+        bossX[0] = 600
+    elif bossX[0] < 0:
+        pygame.transform.flip(boss_img[0], True, False)
+        bossX_change *= -1
+        bossX[0] = 0
 
     # Player
     if event.type == pygame.KEYDOWN:
