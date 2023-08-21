@@ -1,7 +1,6 @@
 import pygame
 import math
 import os
-import time
 from random import randint
 
 # Initialize the pygame
@@ -27,7 +26,7 @@ score_value = 0
 FONT = pygame.font.Font("freesansbold.ttf", 32)
 TEST_X = 10
 TEST_Y = 10
-
+game_won = False
 
 def show_score(x, y):
     score = FONT.render("Score: " + str(score_value), True, (255, 255, 255))
@@ -40,6 +39,9 @@ GAME_OVER_FONT = pygame.font.Font("freesansbold.ttf", 64)
 
 def game_over_text():
     game_over = GAME_OVER_FONT.render("GAME OVER", True, (255, 255, 255))
+    SCREEN.blit(game_over, (200, 250))
+def game_won_text():
+    game_over = GAME_OVER_FONT.render("YOU WON", True, (255, 255, 255))
     SCREEN.blit(game_over, (200, 250))
 
 
@@ -74,20 +76,18 @@ def alien(x, y):
     SCREEN.blit(alien_img[i], (x, y))
 
 # Boss
-boss_img = []
+boss_exists = False
+boss_hp = 7
+boss_img = pygame.image.load("space_invader_project/assets\\boss.png")
 bossX = []
 bossY = []
 bossX_change = 1.5
 bossY_change = []
-
-boss_img.append(pygame.image.load("space_invader_project/assets\\boss.png"))
 bossX.append(300)
 bossY.append(30)
 
 def boss(x, y):
-    SCREEN.blit(boss_img[0], (x, y))
-
-
+    SCREEN.blit(boss_img, (x, y))
 
 # Bullet
 bullet_img = pygame.image.load("space_invader_project/assets\\bullet.png")
@@ -97,12 +97,24 @@ bulletX_change = 0
 bulletY_change = 8.5
 bullet_state = "ready"
 
+# Boss Bullet bossX[0]+ 83 x, y + 200
+bullet2_img = pygame.image.load("space_invader_project/assets\\bulletboss.png")
+bullet2X = int(0)
+bullet2Y = int(0)
+bullet2X_change = int(0)
+bullet2Y_change = int(7)
+bullet2_state = "ready"
 
 def fire_bullet(x, y):
     global bullet_state
     bullet_state = "fire"
     SCREEN.blit(bullet_img, (x + 16, y + 10))
 
+def fire_bullet2(x, y):
+    global bullet2_state
+    bullet2_state = "fire"
+    SCREEN.blit(bullet2_img, (x, y + 200))
+    
 
 def isCollision(alienX, alienY, bulletX, bulletY):
     distance = math.sqrt(
@@ -150,19 +162,50 @@ while running:
             alienX[i] = 0
             alienY[i] += alienY_change[i]
 
-        # Collision
+        # Collisions
         collision = isCollision(alienX[i], alienY[i], bulletX, bulletY)
+
+        player_rect = player_img.get_rect(x=playerX, y=playerY)
+        bullet2_rect = bullet2_img.get_rect(x=bullet2X, y=bullet2Y)
+        boss_rect = boss_img.get_rect(x=bossX[0], y=bossY[0])
+        bullet_rect = bullet_img.get_rect(x=bulletX, y=bulletY)
+
         if collision:
             bulletY = 480
             bullet_state = "ready"
             alienX[i] = randint(0, 735)
             alienY[i] = randint(50, 150)
             score_value += 1
+
+        if boss_rect.colliderect(bullet_rect) and boss_existsd:
+            bulletY = 480
+            bullet_state = "ready"
+            score_value += 1
+            boss_hp -= 1
+            if boss_hp <= 0:
+                boss_exists = False
+                bossX[0] = -9999
+                bossY[0] = -9999
+                score_value += 10
+                boss_exists = False
+                game_won = True
+
+        if game_won == True:
+            game_won_text()
+        
+        if player_rect.colliderect(bullet2_rect) and boss_exists:
+            for j in range(num_aliens):
+                alienY[j] = 9999
+            game_over_text()
+            running = False
+        
         alien(alienX[i], alienY[i])
 
     # Spawning Boss
-    if score_value > 1:
-        num_aliens = 0
+    if score_value > 25:
+        for j in range(num_aliens):
+                alienY[j] = -9999
+        boss_exists = True
         boss(bossX[0], bossY[0])
 
     bossX[0] += bossX_change
@@ -183,6 +226,9 @@ while running:
         if event.key == pygame.K_CAPSLOCK and bullet_state == "ready":
             bulletX = playerX
             fire_bullet(bulletX, bulletY)
+    if bullet2_state == "ready" and boss_exists == True:
+        bullet2X = bossX[0] + 83
+        fire_bullet2(bullet2X, bullet2Y)
 
     if event.type == pygame.K_UP:
         if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -200,6 +246,16 @@ while running:
     if bullet_state == "fire":
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
+
+    #Boss's Bullet Movement
+    if bullet2Y >= 480:
+        bullet2Y = 0
+        bullet2_state = "ready"
+    
+    if bullet2_state == "fire":
+        fire_bullet2(bullet2X, bullet2Y)
+        bullet2Y += bullet2Y_change
+
 
     player(playerX, playerY)
     show_score(TEST_X, TEST_Y)
