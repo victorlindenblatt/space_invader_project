@@ -177,7 +177,7 @@ while running:
             alienY[i] = randint(50, 150)
             score_value += 1
 
-        if boss_rect.colliderect(bullet_rect) and boss_existsd:
+        if boss_rect.colliderect(bullet_rect) and boss_exists:
             bulletY = 480
             bullet_state = "ready"
             score_value += 1
